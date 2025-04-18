@@ -1,11 +1,9 @@
-
-import React from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { Clock, UserRound } from 'lucide-react';
 import { AttendanceRecord } from '@/lib/api/attendance';
-import { StatusBadge, LocationBadge } from './AttendanceBadges';
+import { Clock, UserRound } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { LocationBadge, StatusBadge } from './AttendanceBadges';
 
 interface AttendanceRowProps {
   record: AttendanceRecord;
@@ -14,7 +12,7 @@ interface AttendanceRowProps {
 const AttendanceRow = ({ record }: AttendanceRowProps) => {
   // Format time to IST (Indian Standard Time, UTC+5:30)
   const formatClockTimeIST = (timeString: string | null) => {
-    if (!timeString) return '-';
+    if (!timeString || timeString === '-') return '-';
     
     try {
       // Try to parse as date
@@ -62,7 +60,7 @@ const AttendanceRow = ({ record }: AttendanceRowProps) => {
           <div className="bg-muted rounded-full p-1.5">
             <UserRound className="h-4 w-4" />
           </div>
-          {record.employeeId || 'Unknown ID'}
+          {record.employeeName || 'Unknown Employee'}
         </Link>
       </TableCell>
       <TableCell><StatusBadge status={record.status} /></TableCell>

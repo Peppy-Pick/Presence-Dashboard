@@ -1,6 +1,9 @@
-
-import { fetchWithCache, handleApiError, ApiResponse, ATTENDANCE_API_BASE_URL, resetApiCache } from './utils';
-import { toast } from 'sonner';
+import {
+  ApiResponse,
+  ATTENDANCE_API_BASE_URL,
+  fetchWithCache,
+  resetApiCache
+} from "./utils";
 
 // Dashboard types
 export interface WeeklyOverviewItem {
@@ -16,6 +19,7 @@ export interface RecentActivityItem {
   action: string;
   time: string;
   is_late: boolean;
+  employee_name: string;
 }
 
 export interface AttendanceSummary {
@@ -42,34 +46,32 @@ let dashboardCache: DashboardData | null = null;
 export const getDashboardData = async (): Promise<DashboardData> => {
   // Check if we have cached data
   if (dashboardCache) {
-    console.log('Using cached dashboard data');
+    console.log("Using cached dashboard data");
     return dashboardCache;
   }
 
   try {
-    console.log('Fetching dashboard data from API...');
+    console.log("Fetching dashboard data from API...");
     const response = await fetchWithCache<ApiResponse<DashboardData>>(
       `${ATTENDANCE_API_BASE_URL}/api/dashboard`,
       { cacheTTL: 5 * 60 * 1000 }
     );
-    
+
     if (!response.data) {
-      throw new Error('API returned null data');
+      throw new Error("API returned null data");
     }
-    
+
     // Cache the dashboard data
     dashboardCache = response.data;
-    console.log('Successfully retrieved dashboard data from API:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch dashboard data from API:', error);
-    throw error;
+    console.error("Failed to fetch dashboard data from API");
   }
 };
 
 // Clear dashboard cache
 export const clearDashboardCache = () => {
-  console.log('Clearing dashboard cache');
+  console.log("Clearing dashboard cache");
   dashboardCache = null;
   resetApiCache();
 };

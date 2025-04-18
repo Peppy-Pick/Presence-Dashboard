@@ -1,17 +1,15 @@
-
-import React, { useState } from 'react';
-import { Bell, Menu, User } from 'lucide-react';
-import { useAppContext } from '@/context/AppContext';
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/ui/logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Logo } from "@/components/ui/logo";
+import { useAppContext } from '@/context/AppContext';
+import { Bell, Menu } from 'lucide-react';
+import { useState } from 'react';
 
 const Header = () => {
   const { toggleSidebar, appName, username } = useAppContext();
@@ -54,24 +52,6 @@ const Header = () => {
             <div className="py-2 px-2 text-center text-sm text-muted-foreground">
               No new notifications
             </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <User className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel className="flex items-center">
-              <span className="truncate max-w-[150px]">{username}</span>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

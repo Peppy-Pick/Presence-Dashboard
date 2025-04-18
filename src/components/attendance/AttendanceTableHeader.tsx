@@ -1,13 +1,11 @@
-
-import React from 'react';
-import { Clock, UserRound } from 'lucide-react';
 import { TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Clock } from 'lucide-react';
 
 const AttendanceTableHeader = () => {
   return (
     <TableHeader>
       <TableRow>
-        <TableHead className="w-[200px]">Employee ID</TableHead>
+        <TableHead className="w-[200px]">Employee</TableHead>
         <TableHead>Status</TableHead>
         <TableHead>Location</TableHead>
         <TableHead>
