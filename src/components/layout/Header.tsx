@@ -28,7 +28,7 @@ const Header = () => {
         </Button>
         <div className="flex items-center gap-2">
           <Logo size="sm" />
-          <h2 className="text-lg font-semibold text-primary hidden sm:block">{appName}</h2>
+          <h2 className="text-lg font-semibold text-primary block">{appName}</h2>
         </div>
       </div>
       

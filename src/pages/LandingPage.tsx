@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,8 +5,11 @@ import { Logo } from "@/components/ui/logo";
 import ContactForm from "@/components/landing/ContactForm";
 import FeatureCard from "@/components/landing/FeatureCard";
 import { CheckCircle, MapPin, Clock, Users, Shield, BarChart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -28,9 +30,14 @@ const LandingPage = () => {
               Contact Us
             </a>
           </nav>
-          <Button asChild>
-            <a href="#contact">Get Started</a>
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={() => navigate("/signup")}>
+              Sign Up
+            </Button>
+            <Button onClick={() => navigate("/login")}>
+              Sign In
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -63,7 +70,7 @@ const LandingPage = () => {
                     <img 
                       src="/lovable-uploads/6142c4d9-e037-437f-80d3-f151c1fefdcc.png" 
                       alt="Presence App Dashboard" 
-                      className="w-full h-auto"
+                      className="w-full h-auto animate-float"
                     />
                   </CardContent>
                 </Card>

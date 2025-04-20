@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAppContext } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +10,7 @@ import { Logo } from '@/components/ui/logo';
 import { EyeIcon, EyeOffIcon, LockIcon, UserIcon } from 'lucide-react';
 
 const Login = () => {
+  const navigate = useNavigate();
   const { login, isLoggedIn, appName } = useAppContext();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -34,11 +34,9 @@ const Login = () => {
     }
 
     try {
-      // Use the application context login
       const success = login(username, password);
       
       if (success) {
-        // AppConfigLoader component in App.tsx will handle fetching the config
         toast.success('Login successful');
       } else {
         setError('Invalid credentials. Please try again.');
@@ -64,9 +62,12 @@ const Login = () => {
 
       <div className="w-full max-w-md z-10 animate-fade-in">
         <div className="mb-6 text-center">
-          <div className="inline-flex items-center justify-center p-4 bg-primary/10 rounded-full mb-4 animate-scale-in">
+          <button 
+            onClick={() => navigate('/landing')} 
+            className="inline-flex items-center justify-center p-4 bg-primary/10 rounded-full mb-4 animate-scale-in hover:bg-primary/20 transition-colors"
+          >
             <Logo size="lg" />
-          </div>
+          </button>
           <h1 className="text-4xl font-bold text-gradient mb-2 animate-fade-in">{appName}</h1>
           <p className="text-muted-foreground animate-fade-in animate-delay-100">Employee attendance tracking made simple</p>
         </div>
@@ -133,6 +134,13 @@ const Login = () => {
               >
                 {isLoading ? "Signing In..." : "Sign In"}
               </Button>
+
+              <div className="text-center text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <Button variant="link" className="p-0" onClick={() => navigate('/signup')}>
+                  Sign up
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>

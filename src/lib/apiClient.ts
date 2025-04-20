@@ -42,6 +42,14 @@ export interface ConfigData {
   googleMapsApiKey: string;
 }
 
+export interface CreateCompanyRequest {
+  companyName: string;
+  companySize: string;
+  adminName: string;
+  adminEmail: string;
+  password: string;
+}
+
 /**
  * Creates a cache key from the URL and any body data
  */
@@ -151,4 +159,26 @@ export async function fetchAppConfig(forceRefresh = false): Promise<ApiResponse<
     forceRefresh,
     errorMessage: 'Failed to load application configuration'
   });
+}
+
+// Add this function to handle company creation
+export async function createCompany(data: CreateCompanyRequest): Promise<ApiResponse<any>> {
+  try {
+    const response = await fetch('https://api.peppypresence.com/api/attendance/createCompany', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error creating company:', error);
+    throw error;
+  }
 }
