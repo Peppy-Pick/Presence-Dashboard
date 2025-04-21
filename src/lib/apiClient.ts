@@ -164,7 +164,7 @@ export async function fetchAppConfig(forceRefresh = false): Promise<ApiResponse<
 // Add this function to handle company creation
 export async function createCompany(data: CreateCompanyRequest): Promise<ApiResponse<any>> {
   try {
-    const response = await fetch('https://api.peppypresence.com/api/attendance/createCompany', {
+    const response = await fetch('http://api.peppypresence.com/api/company/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
