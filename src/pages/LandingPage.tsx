@@ -67,9 +67,9 @@ const LandingPage = () => {
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-lg blur opacity-25"></div>
                 <Card className="relative glass-morphism overflow-hidden rounded-lg border-0">
                   <CardContent className="p-0">
-                    <img 
-                      src="/lovable-uploads/6142c4d9-e037-437f-80d3-f151c1fefdcc.png" 
-                      alt="Presence App Dashboard" 
+                    <img
+                      src="/lovable-uploads/6142c4d9-e037-437f-80d3-f151c1fefdcc.png"
+                      alt="Presence App Dashboard"
                       className="w-full h-auto animate-float"
                     />
                   </CardContent>
@@ -91,36 +91,36 @@ const LandingPage = () => {
               Designed to make attendance tracking seamless, accurate, and insightful for your organization.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <FeatureCard 
-              icon={MapPin} 
-              title="Location Verification" 
+            <FeatureCard
+              icon={MapPin}
+              title="Location Verification"
               description="Ensure employees are at the designated workplace using advanced GPS technology."
             />
-            <FeatureCard 
-              icon={Clock} 
-              title="Real-time Tracking" 
+            <FeatureCard
+              icon={Clock}
+              title="Real-time Tracking"
               description="Monitor check-ins and check-outs in real-time for better management."
             />
-            <FeatureCard 
-              icon={Users} 
-              title="Team Management" 
+            <FeatureCard
+              icon={Users}
+              title="Team Management"
               description="Organize employees into teams and departments for structured monitoring."
             />
-            <FeatureCard 
-              icon={BarChart} 
-              title="Analytics Dashboard" 
+            <FeatureCard
+              icon={BarChart}
+              title="Analytics Dashboard"
               description="Access comprehensive reports and insights on attendance patterns."
             />
-            <FeatureCard 
-              icon={Shield} 
-              title="Secure & Reliable" 
+            <FeatureCard
+              icon={Shield}
+              title="Secure & Reliable"
               description="Enterprise-grade security for protecting sensitive attendance data."
             />
-            <FeatureCard 
-              icon={CheckCircle} 
-              title="Compliance Ready" 
+            <FeatureCard
+              icon={CheckCircle}
+              title="Compliance Ready"
               description="Built-in features to help maintain regulatory compliance for your industry."
             />
           </div>
@@ -138,7 +138,7 @@ const LandingPage = () => {
               Our attendance management solution provides real business value with tangible results.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
             <Card className="card-hover border-0 shadow-md bg-gradient-to-br from-card to-secondary/10">
               <CardContent className="p-6 space-y-4">
@@ -159,7 +159,7 @@ const LandingPage = () => {
                 </ul>
               </CardContent>
             </Card>
-            
+
             <Card className="card-hover border-0 shadow-md bg-gradient-to-br from-card to-secondary/10">
               <CardContent className="p-6 space-y-4">
                 <h3 className="text-xl font-semibold">For Employees</h3>
@@ -194,26 +194,26 @@ const LandingPage = () => {
               <p className="text-muted-foreground mb-6">
                 Get in touch with our team to schedule a demo or discuss how Presence can be tailored to your organization's needs.
               </p>
-              
+
               <div className="space-y-6">
                 <div className="space-y-2">
                   <h3 className="font-medium">Our Location</h3>
                   <p className="text-muted-foreground">
-                    123 Business Avenue, Tech Park<br />
-                    Bangalore, Karnataka 560001, India
+                    Hilite Business Park,<br />
+                    Kozhikode, Kerala - 673014,<br />
+                    India
                   </p>
                 </div>
-                
+
                 <div className="space-y-2">
                   <h3 className="font-medium">Email Us</h3>
                   <p className="text-muted-foreground">
-                    info@presence-app.com<br />
-                    support@presence-app.com
+                    register@peppypick.com
                   </p>
                 </div>
               </div>
             </div>
-            
+
             <div>
               <Card className="border-0 shadow-lg">
                 <CardContent className="p-6">
@@ -232,9 +232,11 @@ const LandingPage = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
               <Logo size="sm" />
-              <span className="font-medium">Presence</span>
+              <div>
+                <span className="font-medium">Presence</span>
+                <div className="text-xs text-muted-foreground">A product of ZVPL</div>
+              </div>
             </div>
-            
             <div className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} Presence App. All rights reserved.
             </div>
