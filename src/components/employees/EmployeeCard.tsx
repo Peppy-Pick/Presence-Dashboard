@@ -1,17 +1,15 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Employee } from '@/lib/api';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Briefcase, Mail, Phone, User } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Briefcase, Mail, Phone } from 'lucide-react';
 
 interface EmployeeCardProps {
   employee: Employee;
 }
 
 const EmployeeCard = ({ employee }: EmployeeCardProps) => {
-  // Get initials for avatar fallback
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -21,12 +19,10 @@ const EmployeeCard = ({ employee }: EmployeeCardProps) => {
       .substring(0, 2);
   };
 
-  // Format the shift type
   const formatShiftType = () => {
     if (typeof employee.employee_shift_hours === 'string') {
       return employee.employee_shift_hours;
     } else if (employee.employee_shift_hours && typeof employee.employee_shift_hours === 'object') {
-      // Access start and end times directly from the object
       const { start, end } = employee.employee_shift_hours;
       return `${start} - ${end}`;
     }
@@ -52,6 +48,11 @@ const EmployeeCard = ({ employee }: EmployeeCardProps) => {
             <div className="flex items-center gap-1 mt-1">
               <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">{employee.designation}</span>
+            </div>
+            <div className="mt-1">
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                {employee.department}
+              </Badge>
             </div>
           </div>
           

@@ -1,5 +1,5 @@
-
 import { fetchWithCache, handleApiError, ApiResponse, ATTENDANCE_API_BASE_URL } from './utils';
+import { getConfigData } from './config';
 
 // Attendance types
 export interface AttendanceDate {
@@ -49,15 +49,37 @@ export interface ApiAttendanceRecord {
   date: string;
 }
 
-export interface DailyAttendance {
-  employee_id: string;
-  employee_name?: string;
-  status: string;
-  check_in: string | null;
-  check_out: string | null;
-  hours_worked: number;
-  notes: string;
-}
+// Helper function to check if time is late based on shift time and buffer
+export const isLateAttendance = async (clockInTime: string, shiftStartTime: string): Promise<boolean> => {
+  try {
+    // Get buffer time from config
+    const config = await getConfigData();
+    const bufferMinutes = config.attendance_settings?.late_buffer_minutes || 10;
+
+    // Parse times
+    const [shiftHours, shiftMinutes] = shiftStartTime.split(':').map(Number);
+    const [clockHours, clockMinutes] = clockInTime.split(':').map(Number);
+
+    // Convert to minutes since midnight
+    const shiftTimeInMinutes = (shiftHours * 60) + shiftMinutes;
+    const clockInTimeInMinutes = (clockHours * 60) + clockMinutes;
+
+    // Add buffer to shift time
+    const lateThreshold = shiftTimeInMinutes + bufferMinutes;
+
+    return clockInTimeInMinutes > lateThreshold;
+  } catch (error) {
+    console.error('Error checking late attendance:', error);
+    // Default to 10 minutes buffer if config fetch fails
+    const [shiftHours, shiftMinutes] = shiftStartTime.split(':').map(Number);
+    const [clockHours, clockMinutes] = clockInTime.split(':').map(Number);
+    
+    const shiftTimeInMinutes = (shiftHours * 60) + shiftMinutes;
+    const clockInTimeInMinutes = (clockHours * 60) + clockMinutes;
+    
+    return clockInTimeInMinutes > (shiftTimeInMinutes + 10);
+  }
+};
 
 // Get all attendance records
 export const getAllAttendanceRecords = async (): Promise<AttendanceRecord[]> => {
@@ -100,7 +122,7 @@ const transformApiRecordToAttendanceRecord = (record: ApiAttendanceRecord): Atte
   };
 };
 
-// Get attendance by date - Properly parse API response
+// Get attendance by date
 export const getAttendanceByDate = async (date: string): Promise<AttendanceRecord[]> => {
   try {
     console.log(`Fetching attendance for date: ${date}`);
@@ -141,31 +163,5 @@ export const getEmployeeAttendance = async (employeeId: string): Promise<Attenda
     return response.data.map(transformApiRecordToAttendanceRecord);
   } catch (error) {
     return handleApiError(error, 'Failed to fetch employee attendance');
-  }
-};
-
-// Get all attendance for a specific date
-export const getAllAttendanceForDate = async (date: string): Promise<DailyAttendance[]> => {
-  try {
-    const response = await fetchWithCache<ApiResponse<ApiAttendanceRecord[]>>(
-      `${ATTENDANCE_API_BASE_URL}/api/attendance/date?date=${date}`
-    );
-    
-    if (!response.data) {
-      throw new Error('Invalid response format from attendance API');
-    }
-    
-    // Transform to our internal format
-    return response.data.map(record => ({
-      employee_id: record.employee_id || '',
-      employee_name: record.employee_name || 'Unknown Employee',
-      status: record.status || '',
-      check_in: record.clock_in || '',
-      check_out: record.clock_out || '',
-      hours_worked: record.hours_worked || 0,
-      notes: ''
-    }));
-  } catch (error) {
-    return handleApiError(error, 'Failed to fetch attendance for date');
   }
 };

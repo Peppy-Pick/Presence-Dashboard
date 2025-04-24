@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+
 // In-memory cache for API responses
 const apiCache = new Map();
 
@@ -68,10 +70,11 @@ export const fetchWithCache = async <T>(
 // Generic function to handle API errors
 export const handleApiError = (error: any, message: string) => {
   console.error(message, error);
+  toast.error(`${message}: ${error.message || error}`);
   throw new Error(`${message}: ${error.message || error}`);
 };
 
-// API base URLs - Updated to new api.peppypresence.com domain
+// API base URLs
 export const EMPLOYEE_API_BASE_URL = 'https://api.peppypresence.com';
 export const ATTENDANCE_API_BASE_URL = 'https://api.peppypresence.com';
 

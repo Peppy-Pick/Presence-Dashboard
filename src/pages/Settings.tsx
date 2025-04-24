@@ -1,10 +1,10 @@
-
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
 import LocationSettings from "@/components/settings/LocationSettings";
 import ThemeSettings from "@/components/settings/ThemeSettings";
+import AppSettings from "@/components/settings/AppSettings";
 import { getConfigData } from "@/lib/api/config";
 import { toast } from "sonner";
 
@@ -16,9 +16,7 @@ const Settings = () => {
   useEffect(() => {
     setCurrentPage("settings");
     
-    // Load config data when the settings page is opened, but only once
     const loadConfig = async () => {
-      // Return early if config has already been loaded
       if (configLoaded) return;
       
       setIsLoading(true);
@@ -28,14 +26,11 @@ const Settings = () => {
         console.log("Config data loaded:", configData);
         
         if (configData) {
-          // Handle Google Maps API key
           if (configData.googleMapsApiKey && setGoogleMapsApiKey) {
             setGoogleMapsApiKey(configData.googleMapsApiKey);
           }
           
-          // Handle office location
           if (configData.office_location && updateOfficeLocation) {
-            // Convert km to meters for local state
             const radiusInMeters = configData.allowed_radius_km ? configData.allowed_radius_km * 1000 : 100;
             
             updateOfficeLocation({
@@ -45,7 +40,6 @@ const Settings = () => {
             });
           }
           
-          // Mark config as loaded to prevent additional API calls
           setConfigLoaded(true);
         }
       } catch (error) {
@@ -69,9 +63,10 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="location" className="space-y-4">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-md grid-cols-3">
           <TabsTrigger value="location">Location</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
+          <TabsTrigger value="app">App Settings</TabsTrigger>
         </TabsList>
         
         <TabsContent value="location" className="space-y-4">
@@ -102,6 +97,10 @@ const Settings = () => {
               <ThemeSettings />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="app" className="space-y-4">
+          <AppSettings />
         </TabsContent>
       </Tabs>
     </div>

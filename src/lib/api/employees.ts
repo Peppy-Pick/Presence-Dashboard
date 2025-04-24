@@ -1,4 +1,3 @@
-
 import { fetchWithCache, handleApiError, ApiResponse, EMPLOYEE_API_BASE_URL, resetApiCache } from './utils';
 
 // Employee type definition
@@ -30,7 +29,6 @@ export interface Employee {
     currency: string;
     frequency: string;
   };
-  // Add other employee properties as needed
 }
 
 // In-memory cache for employees
@@ -39,23 +37,21 @@ let employeeCache: Employee[] | null = null;
 // Get all employees
 export const getAllEmployees = async (): Promise<Employee[]> => {
   try {
-    // Check if we have cached data
     if (employeeCache) {
       console.log('Using cached employees data');
       return employeeCache;
     }
     
-    console.log('Fetching all employees from API - this should only be called when needed');
+    console.log('Fetching all employees from API');
     const response = await fetchWithCache<ApiResponse<Employee[]>>(
       `${EMPLOYEE_API_BASE_URL}/api/employee/all`,
-      { cacheTTL: 5 * 60 * 1000 } // Cache for 5 minutes
+      { cacheTTL: 5 * 60 * 1000 }
     );
     
     if (!response.data) {
       throw new Error('Invalid response format from API');
     }
     
-    // Cache the employees data
     employeeCache = response.data;
     console.log('Fetched employees from API:', response.data);
     return response.data;
@@ -82,63 +78,28 @@ export const getEmployeeById = async (id: string): Promise<Employee> => {
   }
 };
 
-// Create a new employee
-export const createEmployee = async (employeeData: Omit<Employee, 'id'>): Promise<Employee> => {
+// Update employee details
+export const updateEmployee = async (id: string, data: Partial<Employee>): Promise<Employee> => {
   try {
-    const response = await fetch(`${EMPLOYEE_API_BASE_URL}/api/employee/create`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(employeeData),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to create employee: ${response.status}`);
-    }
-
-    const responseData: ApiResponse<Employee> = await response.json();
-
-    if (!responseData.data) {
-      throw new Error('Invalid response format from API');
-    }
-    
-    // Clear the employee cache so that the new employee is fetched
-    resetApiCache();
-    employeeCache = null;
-    
-    return responseData.data;
-  } catch (error) {
-    return handleApiError(error, 'Failed to create employee');
-  }
-};
-
-// Update an employee
-export const updateEmployee = async (id: string, employeeData: Partial<Employee>): Promise<Employee> => {
-  try {
-    const response = await fetch(`${EMPLOYEE_API_BASE_URL}/api/employee/update/${id}`, {
+    const response = await fetch(`${EMPLOYEE_API_BASE_URL}/api/employee/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(employeeData),
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
       throw new Error(`Failed to update employee: ${response.status}`);
     }
 
-    const responseData: ApiResponse<Employee> = await response.json();
-
-     if (!responseData.data) {
-      throw new Error('Invalid response format from API');
-    }
+    const result = await response.json();
     
-    // Clear the employee cache so that the updated employee is fetched
+    // Clear cache to ensure fresh data
     resetApiCache();
     employeeCache = null;
 
-    return responseData.data;
+    return result.data;
   } catch (error) {
     return handleApiError(error, 'Failed to update employee');
   }
@@ -147,7 +108,7 @@ export const updateEmployee = async (id: string, employeeData: Partial<Employee>
 // Delete an employee
 export const deleteEmployee = async (id: string): Promise<void> => {
   try {
-    const response = await fetch(`${EMPLOYEE_API_BASE_URL}/api/employee/delete/${id}`, {
+    const response = await fetch(`${EMPLOYEE_API_BASE_URL}/api/employee/${id}`, {
       method: 'DELETE',
     });
 
@@ -155,11 +116,29 @@ export const deleteEmployee = async (id: string): Promise<void> => {
       throw new Error(`Failed to delete employee: ${response.status}`);
     }
     
-    // Clear the employee cache so that the employee list is refreshed
     resetApiCache();
     employeeCache = null;
   } catch (error) {
     return handleApiError(error, 'Failed to delete employee');
+  }
+};
+
+// Reset employee password
+export const resetEmployeePassword = async (id: string, newPassword: string): Promise<void> => {
+  try {
+    const response = await fetch(`${EMPLOYEE_API_BASE_URL}/api/employee/${id}/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ newPassword }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to reset password: ${response.status}`);
+    }
+  } catch (error) {
+    return handleApiError(error, 'Failed to reset employee password');
   }
 };
 

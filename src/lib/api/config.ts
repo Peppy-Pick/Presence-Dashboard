@@ -1,4 +1,3 @@
-
 import { fetchWithCache, handleApiError, ApiResponse, ATTENDANCE_API_BASE_URL, clearApiCacheEntry } from './utils';
 
 // Config types
@@ -9,6 +8,12 @@ export interface ConfigData {
     longitude: number;
   };
   allowed_radius_km: number;
+  attendance_settings: {
+    late_buffer_minutes: number;
+    allow_manual_time: boolean;
+    max_time_adjustment: number;
+    require_approval: boolean;
+  };
   id?: string;
   created_at?: string;
   last_modified?: string;

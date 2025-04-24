@@ -1,10 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as z from 'zod';
-import DatePickerField from './DatePickerField';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,11 +23,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-
-import { clearDashboardCache } from '@/lib/api/dashboard';
-import { clearEmployeeCache } from '@/lib/api/employees';
-import { EMPLOYEE_API_BASE_URL } from '@/lib/api/utils';
-import { useQueryClient } from '@tanstack/react-query';
+import { Employee, updateEmployee } from '@/lib/api/employees';
 
 const departments = [
   'Engineering',
@@ -45,11 +40,9 @@ const departments = [
 
 const employeeFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
-  date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
   email: z.string().email('Please enter a valid email address'),
-  address: z.string().min(5, 'Address must be at least 5 characters'),
   phone_number: z.string()
-    .regex(/^(\+91[\-\s]?)?[6789]\d{9}$/, 'Please enter a valid Indian phone number (e.g., +91 9876543210)')
+    .regex(/^(\+91[\-\s]?)?[6789]\d{9}$/, 'Please enter a valid Indian phone number')
     .transform(val => val.startsWith('+91') ? val : `+91${val}`),
   designation: z.string().min(2, 'Designation must be at least 2 characters'),
   department: z.string().min(2, 'Department is required'),
@@ -57,40 +50,37 @@ const employeeFormSchema = z.object({
   shift_start_meridiem: z.enum(['AM', 'PM']),
   shift_end_time: z.string(),
   shift_end_meridiem: z.enum(['AM', 'PM']),
-  dob_date: z.date(),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  address: z.string().min(5, 'Address must be at least 5 characters'),
 });
 
 type EmployeeFormValues = z.infer<typeof employeeFormSchema>;
 
-interface AddEmployeeFormProps {
+interface EditEmployeeFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onEmployeeAdded: () => void;
+  employee: Employee;
+  onEmployeeUpdated: () => void;
 }
 
-const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({ 
+const EditEmployeeForm: React.FC<EditEmployeeFormProps> = ({ 
   open, 
   onOpenChange,
-  onEmployeeAdded
+  employee,
+  onEmployeeUpdated
 }) => {
-  const queryClient = useQueryClient();
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeFormSchema),
     defaultValues: {
-      name: '',
-      date_of_birth: '',
-      email: '',
-      address: '',
-      phone_number: '+91 ',
-      designation: '',
-      department: '',
+      name: employee.name,
+      email: employee.email,
+      phone_number: employee.phone_number,
+      designation: employee.designation,
+      department: employee.department,
+      address: employee.address,
       shift_start_time: '09:00',
       shift_start_meridiem: 'AM',
       shift_end_time: '06:00',
       shift_end_meridiem: 'PM',
-      dob_date: undefined,
-      password: '',
     },
   });
 
@@ -101,37 +91,19 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
         employee_shift_hours: `${data.shift_start_time} ${data.shift_start_meridiem} - ${data.shift_end_time} ${data.shift_end_meridiem}`,
       };
 
-      const response = await fetch(`${EMPLOYEE_API_BASE_URL}/api/employee/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formattedData),
-      });
+      await updateEmployee(employee.id, formattedData);
       
-      const result = await response.json();
-      
-      if (response.ok) {
-        clearEmployeeCache();
-        clearDashboardCache();
-        
-        queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
-        queryClient.invalidateQueries({ queryKey: ['employees'] });
-        
-        toast.success('Employee added successfully!');
-        onOpenChange(false);
-        onEmployeeAdded();
-        form.reset();
-      } else {
-        throw new Error(result.message || 'Failed to add employee');
-      }
+      toast.success('Employee updated successfully!');
+      onOpenChange(false);
+      onEmployeeUpdated();
+      form.reset();
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
         toast.error('An unexpected error occurred');
       }
-      console.error('Error adding employee:', error);
+      console.error('Error updating employee:', error);
     }
   }
 
@@ -147,14 +119,10 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DialogClose>
         <DialogHeader>
-          <DialogTitle>Add New Employee</DialogTitle>
+          <DialogTitle>Edit Employee</DialogTitle>
           <DialogDescription>
-            Enter the employee details below to add them to the system.
+            Update employee information
           </DialogDescription>
         </DialogHeader>
         
@@ -165,30 +133,24 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
                 control={form.control}
                 name="name"
                 render={({ field }) => (
-                  <FormItem className="h-[72px]">
+                  <FormItem>
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} className="h-10" />
+                      <Input placeholder="John Doe" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               
-              <DatePickerField 
-                form={form} 
-                name="dob_date" 
-                label="Date of Birth"
-              />
-              
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem className="h-[72px]">
+                  <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="john.doe@example.com" {...field} className="h-10" />
+                      <Input type="email" placeholder="john@example.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -199,13 +161,12 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
                 control={form.control}
                 name="phone_number"
                 render={({ field }) => (
-                  <FormItem className="h-[72px]">
+                  <FormItem>
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="+91 9876543210" 
                         {...field} 
-                        className="h-10"
                         onChange={(e) => {
                           let value = e.target.value;
                           if (!value.startsWith('+91')) {
@@ -226,10 +187,10 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
                 control={form.control}
                 name="designation"
                 render={({ field }) => (
-                  <FormItem className="h-[72px]">
+                  <FormItem>
                     <FormLabel>Designation</FormLabel>
                     <FormControl>
-                      <Input placeholder="Software Engineer" {...field} className="h-10" />
+                      <Input placeholder="Software Engineer" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -240,7 +201,7 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
                 control={form.control}
                 name="department"
                 render={({ field }) => (
-                  <FormItem className="h-[72px]">
+                  <FormItem>
                     <FormLabel>Department</FormLabel>
                     <FormControl>
                       <select
@@ -260,26 +221,12 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
               
               <FormField
                 control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem className="h-[72px]">
-                    <FormLabel>Initial Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••" {...field} className="h-10" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
                 name="address"
                 render={({ field }) => (
-                  <FormItem className="h-[72px]">
+                  <FormItem>
                     <FormLabel>Address</FormLabel>
                     <FormControl>
-                      <Input placeholder="123 Main Street, City" {...field} className="h-10" />
+                      <Input placeholder="123 Main Street, City" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -384,8 +331,11 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
               </div>
             </div>
             
-            <div className="flex justify-end pt-4">
-              <Button type="submit" className="w-full md:w-auto">Add Employee</Button>
+            <div className="flex justify-end gap-2">
+              <DialogClose asChild>
+                <Button type="button" variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button type="submit">Update Employee</Button>
             </div>
           </form>
         </Form>
@@ -394,4 +344,4 @@ const AddEmployeeForm: React.FC<AddEmployeeFormProps> = ({
   );
 };
 
-export default AddEmployeeForm;
+export default EditEmployeeForm;

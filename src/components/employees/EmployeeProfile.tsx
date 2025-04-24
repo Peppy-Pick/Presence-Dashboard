@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Employee, AttendanceRecord } from '@/lib/api';
 import { 
   Mail, 
@@ -18,16 +18,21 @@ import {
   AlertCircle,
   User,
   Home,
-  Droplet
+  Droplet,
+  Pencil
 } from 'lucide-react';
+import EditEmployeeForm from './EditEmployeeForm';
 
 interface EmployeeProfileProps {
   employee: Employee;
   attendanceRecords: AttendanceRecord[];
   isLoading: boolean;
+  onEmployeeUpdated?: () => void;
 }
 
-const EmployeeProfile = ({ employee, attendanceRecords, isLoading }: EmployeeProfileProps) => {
+const EmployeeProfile = ({ employee, attendanceRecords, isLoading, onEmployeeUpdated }: EmployeeProfileProps) => {
+  const [showEditForm, setShowEditForm] = useState(false);
+
   if (isLoading) {
     return (
       <div className="grid gap-6 animate-pulse">
@@ -198,6 +203,10 @@ const EmployeeProfile = ({ employee, attendanceRecords, isLoading }: EmployeePro
             </div>
             
             <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit Details
+              </Button>
               <Button variant="outline" size="sm" className="rounded-full">
                 <Mail className="h-4 w-4 mr-2" />
                 Send Email
@@ -273,6 +282,14 @@ const EmployeeProfile = ({ employee, attendanceRecords, isLoading }: EmployeePro
               <div className="flex items-center gap-2">
                 <Building className="h-4 w-4 text-primary" />
                 <span>{formatCTC(employee.ctc)}</span>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Department</p>
+              <div className="flex items-center gap-2">
+                <Building className="h-4 w-4 text-primary" />
+                <span>{employee.department}</span>
               </div>
             </div>
           </div>
@@ -389,6 +406,17 @@ const EmployeeProfile = ({ employee, attendanceRecords, isLoading }: EmployeePro
           )}
         </CardContent>
       </Card>
+
+      <EditEmployeeForm
+        open={showEditForm}
+        onOpenChange={setShowEditForm}
+        employee={employee}
+        onEmployeeUpdated={() => {
+          if (onEmployeeUpdated) {
+            onEmployeeUpdated();
+          }
+        }}
+      />
     </div>
   );
 };
